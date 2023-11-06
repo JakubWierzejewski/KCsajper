@@ -11,7 +11,7 @@ const port = 3000
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const connection = createConnection({
-    host: '0.0.0.0',
+    host: '127.0.0.1',
     user: 'root',
     password: '',
     //database: 'api',
@@ -36,7 +36,7 @@ router.get('/kontakt',(req,res)=>{
 })
 
 
-app.set('view engine', 'pug')
+app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'));
 
 
@@ -51,13 +51,16 @@ app.use(express.urlencoded({ extended: true }))
 app.use(upload.array())
 app.use(express.static('public'))
 
-router.post('/kontakt',(req,res)=>{
-    const body = []
-    req.on('data',(chunk)=>{
-        body.push(chunk)
-    })
-    console.log(body)
+app.post('/kontakt',(req,res)=>{
+    console.log(req.body)
     res.redirect('/')
+})
+
+router.get('/api', (req,res)=>{
+    const API = {
+        students: '/api/students',
+        subjects: '/api/subjects'
+    }
 })
 
 router.get('/api/subjects',(req,res)=>{
@@ -74,7 +77,7 @@ router.get('/api/students',(req,res)=>{
         if (error){
             res.statusCode = 404
         }
-        res.render(__dirname+"/students",{students:result});
+        res.send(result)
     })
 })
 router.get('/api/students/:id',(req,res)=>{
