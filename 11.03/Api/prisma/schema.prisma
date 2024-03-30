@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model categories {
+  CategoryID Int        @id @default(autoincrement())
+  Name       String?    @db.VarChar(100)
+  products   products[]
+}
+
+model customers {
+  CustomerID Int      @id @default(autoincrement())
+  Name       String?  @db.VarChar(100)
+  Email      String?  @db.VarChar(100)
+  orders     orders[]
+}
+
+model orderdetails {
+  OrderDetailID Int       @id @default(autoincrement())
+  OrderID       Int?
+  ProductID     Int?
+  Quantity      Int?
+  Price         Decimal?  @db.Decimal(10, 2)
+  orders        orders?   @relation(fields: [OrderID], references: [OrderID], onDelete: Restrict, onUpdate: Restrict, map: "FK_OrderID")
+  products      products? @relation(fields: [ProductID], references: [ProductID], onDelete: Restrict, onUpdate: Restrict, map: "FK_ProductID")
+
+  @@index([OrderID], map: "FK_OrderID")
+  @@index([ProductID], map: "FK_ProductID")
+}
+
+model orders {
+  OrderID      Int            @id @default(autoincrement())
+  CustomerID   Int?
+  OrderDate    DateTime?      @db.Date
+  orderdetails orderdetails[]
+  customers    customers?     @relation(fields: [CustomerID], references: [CustomerID], onDelete: Restrict, onUpdate: Restrict, map: "FK_CustomerID")
+
+  @@index([CustomerID], map: "FK_CustomerID")
+}
+
+model products {
+  ProductID    Int            @id @default(autoincrement())
+  Name         String?        @db.VarChar(100)
+  Price        Decimal?       @db.Decimal(10, 2)
+  CategoryID   Int?
+  orderdetails orderdetails[]
+  categories   categories?    @relation(fields: [CategoryID], references: [CategoryID], onDelete: Restrict, onUpdate: Restrict, map: "FK_CategoryID")
+
+  @@index([CategoryID], map: "FK_CategoryID")
+}
